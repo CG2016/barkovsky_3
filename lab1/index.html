@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Computer Graphics lab1</title>
+
+    <!-- Favicon -->
+    <link rel="icon" sizes="any" href="static/favicon.png">
+
+    <!-- jQuery -->
+    <script src="static/dist/jquery/jquery.min.js" defer></script>
+
+    <!-- Underscore -->
+    <script src="static/dist/underscore/underscore-min.js" defer></script>
+
+    <!-- sprintf.js -->
+    <script src="static/dist/sprintf/sprintf.min.js" defer></script>
+
+    <!-- Bootstrap -->
+    <link href="static/dist/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="static/dist/bootstrap/js/bootstrap.min.js" defer></script>
+
+    <!-- Custom styles -->
+    <link href="static/style.css" rel="stylesheet">
+
+    <!-- Converter scripts -->
+    <script src="static/convert.js" defer></script>
+  </head>
+
+  <body>
+    <header class="jumbotron">
+      <div class="container">
+        <h1>Lab 1</h1>
+        <p>
+          v3: HSV &lt;-&gt; L*a*b &lt;-&gt; CMY
+        </p>
+      </div>
+    </header>
+
+    <div class="panel panel-default converter-panel">
+      <div class="sliders">
+        <p>
+          <h3>HSV</h3>
+          <div class="color-slider">
+            <label for="hsv-h">H</label>
+            <input type="range" id="hsv-h" min="0" max="360">
+            <output id="hsv-h-value">0</output>
+          </div>
+          <div class="color-slider">
+            <label for="hsv-s">S</label>
+            <input type="range" id="hsv-s" min="0" max="100">
+            <output id="hsv-s-value">0</output>
+          </div>
+          <div class="color-slider">
+            <label for="hsv-v">V</label>
+            <input type="range" id="hsv-v" min="0" max="100">
+            <output id="hsv-v-value">0</output>
+          </div>
+        </p>
+
+        <p>
+          <h3>LAB</h3>
+          <div class="color-slider">
+            <label for="lab-l">L</label>
+            <input type="range" id="lab-l" min="0" max="100">
+            <output id="lab-l-value">0</output>
+          </div>
+          <div class="color-slider">
+            <label for="lab-a">A</label>
+            <input type="range" id="lab-a" min="-128" max="128">
+            <output id="lab-a-value">0</output>
+          </div>
+          <div class="color-slider">
+            <label for="lab-b">B</label>
+            <input type="range" id="lab-b" min="-128" max="128">
+            <output id="lab-b-value">0</output>
+          </div>
+        </p>
+
+        <p>
+          <h3>CMY</h3>
+          <div class="color-slider">
+            <label for="cmy-c">C</label>
+            <input type="range" id="cmy-c" min="0" max="100">
+            <output id="cmy-c-value">0</output>
+          </div>
+          <div class="color-slider">
+            <label for="cmy-m">M</label>
+            <input type="range" id="cmy-m" min="0" max="100">
+            <output id="cmy-m-value">0</output>
+          </div>
+          <div class="color-slider">
+            <label for="cmy-y">Y</label>
+            <input type="range" id="cmy-y" min="0" max="100">
+            <output id="cmy-y-value">0</output>
+          </div>
+        </p>
+      </div>
+
+      <div id="color-block"></div>
+    </div>
+
+    <footer>
+      <p class="text-muted">© 2016 Anton Barkovsky</p>
+    </footer>
+  </body>
+</html>
