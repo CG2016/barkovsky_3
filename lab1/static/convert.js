@@ -56,6 +56,21 @@ function labToXyz(l, a, b) {
     }
 }
 
+function xyzToLab(x, y, z) {
+    var f = function(t) {
+        if (t > Math.pow(6 / 29, 3))
+            return Math.pow(t, 1 / 3);
+        else
+            return 1 / 3 * Math.pow(29 / 6, 2) * t + 4 / 29
+    }
+
+    return {
+        l: 116 * f(y / y_d65) - 16,
+        a: 500 * (f(x / x_d65) - f(y / y_d65)),
+        b: 200 * (f(y / y_d65) - f(z / z_d65))
+    }
+}
+
 function xyzToSrgb(x, y, z) {
     var r_lin = 3.2406 * x - 1.5372 * y - 0.4986 * z;
     var g_lin = -0.9689 * x + 1.8758 * y + 0.0415 * z;
@@ -76,11 +91,39 @@ function xyzToSrgb(x, y, z) {
     }
 }
 
+function srgbToXyz(r, g, b) {
+    var a = 0.055;
+    var toLin = function(c) {
+        if (c <= 0.04045)
+            return c / 12.92;
+        else
+            return Math.pow((c + a) / (1 + a), 2.4)
+    }
+
+    var r_lin = toLin(r / 255);
+    var g_lin = toLin(g / 255);
+    var b_lin = toLin(b / 255);
+
+    return {
+        x: (0.4124 * r_lin + 0.3576 * g_lin + 0.1805 * b_lin) * 100,
+        y: (0.2126 * r_lin + 0.7152 * g_lin + 0.0722 * b_lin) * 100,
+        z: (0.0193 * r_lin + 0.1192 * g_lin + 0.9505 * b_lin) * 100
+    }
+}
+
 function rgbToCmy(r, g, b) {
     return {
         c: (1 - r / 255) * 100,
         m: (1 - g / 255) * 100,
         y: (1 - b / 255) * 100
+    }
+}
+
+function cmyToRgb(c, m, y) {
+    return {
+        r: (1 - c / 100) * 255,
+        g: (1 - m / 100) * 255,
+        b: (1 - y / 100) * 255,
     }
 }
 
@@ -102,6 +145,7 @@ function rgbToHsv(r, g, b) {
         h = 60 * ((b - r) / delta + 2);
     else
         h = 60 * ((r - g) / delta + 4);
+    h = (h + 360) % 360;
 
     var s;
     if (cmax == 0)
@@ -134,12 +178,32 @@ function renderLab() {
     setHsvValues(hsv.h, hsv.s, hsv.v);
 }
 
+function renderCmy() {
+    var c = parseFloat($('#cmy-c').val());
+    var m = parseFloat($('#cmy-m').val());
+    var y = parseFloat($('#cmy-y').val());
+    setCmyValues(c, m, y);
+
+    var rgb = cmyToRgb(c, m, y);
+    var hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+    var xyz = srgbToXyz(rgb.r, rgb.g, rgb.b);
+    var lab = xyzToLab(xyz.x, xyz.y, xyz.z);
+
+    setColorBlock(rgb.r, rgb.g, rgb.b);
+    setHsvValues(hsv.h, hsv.s, hsv.v);
+    setLabValues(lab.l, lab.a, lab.b);
+}
+
 
 $(document).ready(function () {
-    setLabValues(90, -50, 0);
-    renderLab();
+    setCmyValues(7, 87, 96);
+    renderCmy();
 
     $('#lab-l').on('input', renderLab);
     $('#lab-a').on('input', renderLab);
     $('#lab-b').on('input', renderLab);
+
+    $('#cmy-c').on('input', renderCmy);
+    $('#cmy-m').on('input', renderCmy);
+    $('#cmy-y').on('input', renderCmy);
 });
