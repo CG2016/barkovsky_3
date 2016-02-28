@@ -162,6 +162,49 @@ function rgbToHsv(r, g, b) {
     }
 }
 
+function hsvToRgb(h, s, v) {
+    s /= 100;
+    v /= 100;
+
+    var c = v * s;
+    var x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+    var m = v - c;
+
+    var r, g, b;
+    h = h % 360;
+    if (h >= 0 && h < 60) {
+        r = c;
+        g = x;
+        b = 0;
+    } else if (h >= 60 && h < 120) {
+        r = x;
+        g = c;
+        b = 0;
+    } else if (h >= 120 && h < 180) {
+        r = 0;
+        g = c;
+        b = x;
+    } else if (h >= 180 && h < 240) {
+        r = 0;
+        g = x;
+        b = c;
+    } else if (h >= 240 && h < 300) {
+        r = x;
+        g = 0;
+        b = c;
+    } else if (h >= 300 && h < 360) {
+        r = c;
+        g = 0;
+        b = x;
+    }
+
+    return {
+        r: (r + m) * 255,
+        g: (g + m) * 255,
+        b: (b + m) * 255
+    }
+}
+
 function renderLab() {
     var l = parseFloat($('#lab-l').val());
     var a = parseFloat($('#lab-a').val());
@@ -194,9 +237,25 @@ function renderCmy() {
     setLabValues(lab.l, lab.a, lab.b);
 }
 
+function renderHsv() {
+    var h = parseFloat($('#hsv-h').val());
+    var s = parseFloat($('#hsv-s').val());
+    var v = parseFloat($('#hsv-v').val());
+    setHsvValues(h, s, v);
+
+    var rgb = hsvToRgb(h, s, v);
+    var cmy = rgbToCmy(rgb.r, rgb.g, rgb.b);
+    var xyz = srgbToXyz(rgb.r, rgb.g, rgb.b);
+    var lab = xyzToLab(xyz.x, xyz.y, xyz.z);
+
+    setColorBlock(rgb.r, rgb.g, rgb.b);
+    setCmyValues(cmy.c, cmy.m, cmy.y);
+    setLabValues(lab.l, lab.a, lab.b);
+}
+
 
 $(document).ready(function () {
-    setCmyValues(7, 87, 96);
+    setHsvValues(7, 87, 96);
     renderCmy();
 
     $('#lab-l').on('input', renderLab);
@@ -206,4 +265,8 @@ $(document).ready(function () {
     $('#cmy-c').on('input', renderCmy);
     $('#cmy-m').on('input', renderCmy);
     $('#cmy-y').on('input', renderCmy);
+
+    $('#hsv-h').on('input', renderHsv);
+    $('#hsv-s').on('input', renderHsv);
+    $('#hsv-v').on('input', renderHsv);
 });
