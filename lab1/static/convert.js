@@ -63,7 +63,7 @@ function xyzToSrgb(x, y, z) {
 
     var a = 0.055;
     var linToLog = function(lin) {
-        if (lin <= 0.031308)
+        if (lin <= 0.0031308)
             return 12.92 * lin;
         else
             return (1 + a) * Math.pow(lin, 1 / 2.4) - a;
