@@ -216,9 +216,17 @@ function renderLab() {
     var cmy = rgbToCmy(rgb.r, rgb.g, rgb.b);
     var hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
 
-    setColorBlock(rgb.r, rgb.g, rgb.b);
-    setCmyValues(cmy.c, cmy.m, cmy.y);
-    setHsvValues(hsv.h, hsv.s, hsv.v);
+    if (rgb.r >= 0 && rgb.r <= 255 &&
+            rgb.g >= 0 && rgb.g <= 255 &&
+            rgb.b >= 0 && rgb.b <= 255) {
+        $('.invalid-color-message').css('visibility', 'hidden');
+
+        setColorBlock(rgb.r, rgb.g, rgb.b);
+        setCmyValues(cmy.c, cmy.m, cmy.y);
+        setHsvValues(hsv.h, hsv.s, hsv.v);
+    } else {
+        $('.invalid-color-message').css('visibility', 'visible');
+    }
 }
 
 function renderCmy() {
@@ -232,6 +240,7 @@ function renderCmy() {
     var xyz = srgbToXyz(rgb.r, rgb.g, rgb.b);
     var lab = xyzToLab(xyz.x, xyz.y, xyz.z);
 
+    $('.invalid-color-message').css('visibility', 'hidden');
     setColorBlock(rgb.r, rgb.g, rgb.b);
     setHsvValues(hsv.h, hsv.s, hsv.v);
     setLabValues(lab.l, lab.a, lab.b);
@@ -248,6 +257,7 @@ function renderHsv() {
     var xyz = srgbToXyz(rgb.r, rgb.g, rgb.b);
     var lab = xyzToLab(xyz.x, xyz.y, xyz.z);
 
+    $('.invalid-color-message').css('visibility', 'hidden');
     setColorBlock(rgb.r, rgb.g, rgb.b);
     setCmyValues(cmy.c, cmy.m, cmy.y);
     setLabValues(lab.l, lab.a, lab.b);
@@ -255,6 +265,7 @@ function renderHsv() {
 
 
 $(document).ready(function () {
+    $('.invalid-color-message').css('visibility', 'hidden');
     setHsvValues(7, 87, 96);
     renderCmy();
 
