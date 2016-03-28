@@ -92,6 +92,7 @@ class RecolorWindow:
         scaled_image = image.copy()
         scaled_image.thumbnail(IMAGE_SIZE)
 
+        self.image = scaled_image
         self._original_tk_image = PIL.ImageTk.PhotoImage(scaled_image)
         self.label_original.config(image=self._original_tk_image)
 
@@ -125,17 +126,19 @@ class RecolorWindow:
         self._to_lab = convert_color(sRGBColor(*self.to_color), LabColor)
         range_ = self.range
         from_r, from_g, from_b = self.from_color
+        to_r, to_g, to_b = self.to_color
 
         width, height = self.image.width, self.image.height
+        pixel_count = width * height
         source_pixels = numpy.asarray(self.image)
 
         result_image = PIL.Image.new('RGB', (width, height), "black")
         target_pixels = result_image.load()
 
-        pixel_count = 0
+        pixels_done = 0
         for i in range(width):
             for j in range(height):
-                r, g, b = source_pixels[i, j]
+                r, g, b = source_pixels[j, i]
 
                 distance = math.sqrt(
                     (r - from_r) ** 2 +
@@ -143,26 +146,24 @@ class RecolorWindow:
                     (b - from_b) ** 2
                 )
 
+                pixels_done += 1
+                if pixels_done % 10000 == 0:
+                    print('%d%%' % (pixels_done / pixel_count * 100))
+
                 if distance > range_:
+                    target_pixels[i, j] = (r, g, b)
                     continue
 
-                source_lab = convert_color(sRGBColor(r, g, b), LabColor)
-                l_diff = source_lab.lab_l - self._from_lab.lab_l
-                a_diff = source_lab.lab_a - self._from_lab.lab_a
-                b_diff = source_lab.lab_b - self._from_lab.lab_b
+                r_diff = r - from_r
+                g_diff = g - from_g
+                b_diff = b - from_b
 
-                l_new = cap_number(self._to_lab.lab_l + l_diff, 0, 100)
-                a_new = cap_number(self._to_lab.lab_a + a_diff, -128, 128)
-                b_new = cap_number(self._to_lab.lab_b + b_diff, -128, 128)
-                srgb = convert_color(LabColor(l_new, a_new, b_new), sRGBColor)
+                r_new = cap_number(to_r + r_diff, 0, 255)
+                g_new = cap_number(to_g + g_diff, 0, 255)
+                b_new = cap_number(to_b + b_diff, 0, 255)
                 target_pixels[i, j] = (
-                    int(srgb.rgb_r), int(srgb.rgb_g), int(srgb.rgb_b)
+                    int(r_new), int(g_new), int(b_new)
                 )
-
-                pixel_count += 1
-                if pixel_count % 200000 == 0:
-                    print(pixel_count)
-                    return
 
         self.set_result_image(result_image)
 
