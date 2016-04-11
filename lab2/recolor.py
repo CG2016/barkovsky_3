@@ -6,7 +6,7 @@ import math
 import numpy
 import PIL.ImageTk
 import PIL.Image
-from colormath.color_objects import sRGBColor, LabColor
+from colormath.color_objects import sRGBColor, LabColor, HSVColor
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
 
@@ -21,6 +21,14 @@ def cap_number(number, min_, max_):
         return max_
     else:
         return number
+
+
+def barkovsky_distance_3000(hsv1, hsv2):
+    return (
+        abs(hsv1.hsv_h - hsv2.hsv_h) +
+        abs(hsv1.hsv_s - hsv2.hsv_s) * 0.25 +
+        abs(hsv1.hsv_v - hsv2.hsv_v) * 0.25
+    )
 
 
 class RecolorWindow:
@@ -123,6 +131,7 @@ class RecolorWindow:
 
     def recolor(self):
         from_lab = convert_color(sRGBColor(*self.from_color), LabColor)
+        from_hsv = convert_color(sRGBColor(*self.from_color), HSVColor)
         self._to_lab = convert_color(sRGBColor(*self.to_color), LabColor)
         range_ = self.range
         from_r, from_g, from_b = self.from_color
@@ -139,8 +148,10 @@ class RecolorWindow:
         for i in range(width):
             for j in range(height):
                 r, g, b = source_pixels[j, i]
-                lab_pixel = convert_color(sRGBColor(r, g, b), LabColor)
-                distance = delta_e_cie2000(lab_pixel, from_lab)
+                hsv_pixel = convert_color(sRGBColor(r, g, b), HSVColor)
+                distance = barkovsky_distance_3000(hsv_pixel, from_hsv)
+
+                #distance = delta_e_cie2000(lab_pixel, from_lab)
 
                 # distance = math.sqrt(
                 #     (r - from_r) ** 2 +
