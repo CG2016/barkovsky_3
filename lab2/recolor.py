@@ -122,7 +122,7 @@ class RecolorWindow:
         return self.range_scale.get()
 
     def recolor(self):
-        self._from_lab = convert_color(sRGBColor(*self.from_color), LabColor)
+        from_lab = convert_color(sRGBColor(*self.from_color), LabColor)
         self._to_lab = convert_color(sRGBColor(*self.to_color), LabColor)
         range_ = self.range
         from_r, from_g, from_b = self.from_color
@@ -139,12 +139,14 @@ class RecolorWindow:
         for i in range(width):
             for j in range(height):
                 r, g, b = source_pixels[j, i]
+                lab_pixel = convert_color(sRGBColor(r, g, b), LabColor)
+                distance = delta_e_cie2000(lab_pixel, from_lab)
 
-                distance = math.sqrt(
-                    (r - from_r) ** 2 +
-                    (g - from_g) ** 2 +
-                    (b - from_b) ** 2
-                )
+                # distance = math.sqrt(
+                #     (r - from_r) ** 2 +
+                #     (g - from_g) ** 2 +
+                #     (b - from_b) ** 2
+                # )
 
                 pixels_done += 1
                 if pixels_done % 10000 == 0:
@@ -166,27 +168,6 @@ class RecolorWindow:
                 )
 
         self.set_result_image(result_image)
-
-    def _calc_color(self, source_color):
-        r, g, b = source_color
-        delta_e = delta_e_cie2000(
-            self._from_lab,
-            convert_color(sRGBColor(r, g, b), LabColor),
-        )
-
-        if delta_e > self.range:
-            return tuple(source_color)
-
-        source_lab = convert_color(sRGBColor(r, g, b), LabColor)
-        l_diff = source_lab.lab_l - self._from_lab.lab_l
-        a_diff = source_lab.lab_a - self._from_lab.lab_a
-        b_diff = source_lab.lab_b - self._from_lab.lab_b
-
-        l_new = cap_number(self._to_lab.lab_l + l_diff, 0, 100)
-        a_new = cap_number(self._to_lab.lab_a + a_diff, -128, 128)
-        b_new = cap_number(self._to_lab.lab_b + b_diff, -128, 128)
-        srgb = convert_color(LabColor(l_new, a_new, b_new), sRGBColor)
-        return (srgb.rgb_r, srgb.rgb_g, srgb.rgb.b)
 
 
 def main():
