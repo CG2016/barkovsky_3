@@ -34,7 +34,7 @@ class ColorStatsWindow:
         print('blue mean: %.2f' % blue_mean)
 
         red_figure = self.draw_figure(red_counts, red_mean, 'r')
-        green_figure = self.draw_figure(green_counts, red_mean, 'g')
+        green_figure = self.draw_figure(green_counts, green_mean, 'g')
         blue_figure = self.draw_figure(blue_counts, blue_mean, 'b')
 
         red_canvas = self.get_tk_canvas(red_figure)
