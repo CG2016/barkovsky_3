@@ -19,7 +19,7 @@ class ColorStatsWindow:
     def __init__(self, image_path):
         self.root = tk.Tk()
 
-        self.image = PIL.Image.open(image_path)
+        self.image = PIL.Image.open(image_path).convert('RGB')
 
         self.label_original = tk.Label(self.root)
         self.label_original.grid(row=0, column=0)
@@ -67,16 +67,14 @@ class ColorStatsWindow:
 
     def get_color_stats(self):
         width, height = self.image.width, self.image.height
-        pixel_count = width * height
-        pixels = numpy.asarray(self.image)
 
         red_counts = [0] * 256
         green_counts = [0] * 256
         blue_counts = [0] * 256
-        for i in range(height):
-            for j in range(width):
-                r, g, b = pixels[i, j]
 
+        for i in range(width):
+            for j in range(height):
+                r, g, b = self.image.getpixel((i, j))
                 red_counts[r] += 1
                 green_counts[g] += 1
                 blue_counts[b] += 1
