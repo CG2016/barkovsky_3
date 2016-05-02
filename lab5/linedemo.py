@@ -20,13 +20,62 @@ class LineDemoWindow:
 
         self.main_canvas = tk.Canvas(self.root,
                                      width=CANVAS_WIDTH, height=CANVAS_HEIGHT)
-        self.main_canvas.grid(row=0, column=0)
+        self.main_canvas.grid(row=0, column=0, rowspan=7)
         self.zoom_canvas = tk.Canvas(self.root,
                                      width=CANVAS_WIDTH, height=CANVAS_HEIGHT)
-        self.zoom_canvas.grid(row=1, column=0)
-        self.clear()
+        self.zoom_canvas.grid(row=7, column=0)
 
+        self.from_label = tk.Label(self.root, text='From')
+        self.from_label.grid(row=0, column=1, sticky='n')
+        self.from_x_entry = tk.Entry(self.root)
+        self.from_x_entry.grid(row=0, column=2, sticky='n')
+        self.from_y_entry = tk.Entry(self.root)
+        self.from_y_entry.grid(row=0, column=3, sticky='n')
+
+        self.to_label = tk.Label(self.root, text='To')
+        self.to_label.grid(row=1, column=1, sticky='n')
+        self.to_x_entry = tk.Entry(self.root)
+        self.to_x_entry.grid(row=1, column=2, sticky='n')
+        self.to_y_entry = tk.Entry(self.root)
+        self.to_y_entry.grid(row=1, column=3, sticky='n')
+
+        self.step_button = tk.Button(
+            self.root, text='Пошаговый алгоритм',
+            command=self.draw_step
+        )
+        self.step_button.grid(row=2, column=1, sticky='nw', columnspan=3)
+        self.dda_button = tk.Button(
+            self.root, text='Алгоритм ЦДА',
+            command=self.draw_dda
+        )
+        self.dda_button.grid(row=3, column=1, sticky='nw', columnspan=3)
+        self.bresenham_button = tk.Button(
+            self.root, text='Алгоритм Брезенхема',
+            command=self.draw_bresenham
+        )
+        self.bresenham_button.grid(row=4, column=1, sticky='nw', columnspan=3)
+        self.bresenham_circle_button = tk.Button(
+            self.root, text='Алгоритм Брезенхема (окружность)',
+            command=self.draw_bresenham_circle
+        )
+        self.bresenham_circle_button.grid(row=5, column=1, sticky='nw',
+                                          columnspan=3)
+        self.root.grid_rowconfigure(6, weight=1)
+
+        self.clear()
         self.draw_pixel(0, 0)
+
+    def draw_step(self):
+        pass
+
+    def draw_dda(self):
+        pass
+
+    def draw_bresenham(self):
+        pass
+
+    def draw_bresenham_circle(self):
+        pass
 
     def clear(self):
         self.main_canvas.delete('all')
