@@ -68,7 +68,6 @@ class LineDemoWindow:
         self.root.grid_rowconfigure(6, weight=1)
 
         self.clear()
-        self.draw_pixel(0, 0)
 
     def get_points(self):
         from_x = int(self.from_x_entry.get())
@@ -79,45 +78,65 @@ class LineDemoWindow:
 
     def draw_step(self):
         try:
-            (from_x, from_y), (to_x, to_y) = self.get_points()
+            (x1, y1), (x2, y2) = self.get_points()
         except ValueError:
             tkinter.messagebox.showerror('Error', 'Invalid coordinates')
             return
 
         self.clear()
 
-        if from_x > to_x:
-            from_x, to_x = to_x, from_x
-            from_y, to_y = to_y, from_y
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
 
-        dx = to_x - from_x
-        dy = to_y - from_y
+        dx = x2 - x1
+        dy = y2 - y1
 
-        for x in range(from_x, to_x + 1):
-            passed_y = dy * (x - from_x) // dx if dx else 0
-            y = from_y + passed_y
+        for x in range(x1, x2 + 1):
+            passed_y = dy * (x - x1) // dx if dx else 0
+            y = y1 + passed_y
             self.draw_pixel(x, y)
 
     def draw_dda(self):
         try:
-            (from_x, from_y), (to_x, to_y) = self.get_points()
+            (x1, y1), (x2, y2) = self.get_points()
         except ValueError:
             tkinter.messagebox.showerror('Error', 'Invalid coordinates')
             return
+
+        self.clear()
+
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+
+        dx = x2 - x1
+        dy = y2 - y1
+        l = max(dx, dy)
+
+        self.draw_pixel(x1, y1)
+        for i in range(l):
+            y1 += dy / l
+            x1 += dx / l
+            self.draw_pixel(int(x1), int(y1))
 
     def draw_bresenham(self):
         try:
-            (from_x, from_y), (to_x, to_y) = self.get_points()
+            (x1, y1), (x2, y2) = self.get_points()
         except ValueError:
             tkinter.messagebox.showerror('Error', 'Invalid coordinates')
             return
 
+        self.clear()
+
     def draw_bresenham_circle(self):
         try:
-            (from_x, from_y), (to_x, to_y) = self.get_points()
+            (x1, y1), (x2, y2) = self.get_points()
         except ValueError:
             tkinter.messagebox.showerror('Error', 'Invalid coordinates')
             return
+
+        self.clear()
 
     def clear(self):
         self.main_canvas.delete('all')
