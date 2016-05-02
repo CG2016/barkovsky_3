@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import math
 import tkinter as tk
 import tkinter.messagebox
 
@@ -129,6 +130,31 @@ class LineDemoWindow:
 
         self.clear()
 
+        is_steep = abs(y2 - y1) > abs(x2 - x1)
+        if is_steep:
+            x1, y1 = y1, x1
+            x2, y2 = y2, x2
+
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+
+        dx = x2 - x1
+        dy = abs(y2 - y1)
+        error = dx / 2
+        ystep = 1 if y1 < y2 else -1
+        y = y1
+        for x in range(x1, x2 + 1):
+            self.draw_pixel(
+                y if is_steep else x,
+                x if is_steep else y
+            )
+
+            error -= dy
+            if error < 0:
+                y += ystep
+                error += dx
+
     def draw_bresenham_circle(self):
         try:
             (x1, y1), (x2, y2) = self.get_points()
@@ -137,6 +163,28 @@ class LineDemoWindow:
             return
 
         self.clear()
+
+        x = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        y = 0
+        radius_error = 1 - x
+
+        while x >= y:
+            self.draw_pixel(x1 + x, y1 + y)
+            self.draw_pixel(x1 + y, y1 + x)
+            self.draw_pixel(x1 - x, y1 + y)
+            self.draw_pixel(x1 - y, y1 + x)
+            self.draw_pixel(x1 - x, y1 - y)
+            self.draw_pixel(x1 - y, y1 - x)
+            self.draw_pixel(x1 + x, y1 - y)
+            self.draw_pixel(x1 + y, y1 - x)
+
+            y += 1
+
+            if radius_error < 0:
+                radius_error += 2 * y + 1
+            else:
+                x -= 1
+                radius_error += 2 * (y - x + 1)
 
     def clear(self):
         self.main_canvas.delete('all')
