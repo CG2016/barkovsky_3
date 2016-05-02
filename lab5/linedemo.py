@@ -125,17 +125,18 @@ class LineDemoWindow:
         self.draw_borders()
 
     def draw_pixel(self, x, y):
-        if x < 0 or x > CANVAS_WIDTH or y < 0 or y > CANVAS_HEIGHT:
+        if x < 0 or x >= CANVAS_WIDTH - CANVAS_PADDING - CANVAS_BORDER_SIZE or \
+                    y < 0 or y >= CANVAS_HEIGHT - CANVAS_PADDING - CANVAS_BORDER_SIZE:
             return
 
-        self.main_canvas.create_rectangle(
+        self.main_canvas.create_line(
             x + CANVAS_PADDING + CANVAS_BORDER_SIZE,
             y + CANVAS_PADDING + CANVAS_BORDER_SIZE,
-            x + CANVAS_PADDING + CANVAS_BORDER_SIZE,
+            x + CANVAS_PADDING + CANVAS_BORDER_SIZE + 1,
             y + CANVAS_PADDING + CANVAS_BORDER_SIZE,
         )
 
-        if x > ZOOM_CELL_WIDTH or y > ZOOM_CELL_HEIGHT:
+        if x >= ZOOM_CELL_WIDTH or y >= ZOOM_CELL_HEIGHT:
             return
 
         zoom_x0 = (
