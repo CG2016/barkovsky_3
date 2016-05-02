@@ -84,6 +84,20 @@ class LineDemoWindow:
             tkinter.messagebox.showerror('Error', 'Invalid coordinates')
             return
 
+        self.clear()
+
+        if from_x > to_x:
+            from_x, to_x = to_x, from_x
+            from_y, to_y = to_y, from_y
+
+        dx = to_x - from_x
+        dy = to_y - from_y
+
+        for x in range(from_x, to_x + 1):
+            passed_y = dy * (x - from_x) // dx if dx else 0
+            y = from_y + passed_y
+            self.draw_pixel(x, y)
+
     def draw_dda(self):
         try:
             (from_x, from_y), (to_x, to_y) = self.get_points()
