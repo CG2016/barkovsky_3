@@ -89,25 +89,21 @@ class ImageManipulationWindow:
             self.root, text='Bernsen thresholding'
         )
         self.bernsen_label.grid(row=1, column=4, sticky='W')
-        self.bernsen_entry = tk.Entry(self.root)
-        self.bernsen_entry.grid(row=1, column=5, sticky='W')
         self.bernsen_button = tk.Button(
             self.root, text='Perform',
             command=self.perform_bernsen
         )
-        self.bernsen_button.grid(row=1, column=6, sticky='W')
+        self.bernsen_button.grid(row=1, column=5, sticky='W')
 
         self.niblack_label = tk.Label(
             self.root, text='Niblack thresholding'
         )
         self.niblack_label.grid(row=2, column=4, sticky='W')
-        self.niblack_entry = tk.Entry(self.root)
-        self.niblack_entry.grid(row=2, column=5, sticky='W')
         self.niblack_button = tk.Button(
             self.root, text='Perform',
             command=self.perform_niblack
         )
-        self.niblack_button.grid(row=2, column=6, sticky='W')
+        self.niblack_button.grid(row=2, column=5, sticky='W')
 
         self.adaptive_label = tk.Label(
             self.root, text='Adaptive thresholding'
@@ -218,7 +214,7 @@ class ImageManipulationWindow:
         self.show_modified_pixels(modified_pixels)
 
     def perform_bernsen(self):
-        r = 15
+        r = 5
         min_contrast = 15
 
         pixel_array = np.array(self.image)
@@ -284,7 +280,63 @@ class ImageManipulationWindow:
         self.set_modified_image(modified_image)
 
     def perform_adaptive(self):
-        pass
+        k = 3
+        alpha = 2 / 3
+
+        def clipped_range(dimension_size, coord, radius):
+            min_coord = max(0, coord - radius)
+            max_coord = min(dimension_size, coord + radius + 1)
+            return slice(min_coord, max_coord)
+
+        pixel_array = np.array(self.image)
+        new_array = pixel_array.copy()
+        for i in range(pixel_array.shape[0]):
+            print(i)
+            for j in range(pixel_array.shape[1]):
+                current_k = k
+
+                threshold = None
+                while True:
+                    vertical_slice = clipped_range(
+                        pixel_array.shape[0], i, current_k
+                    )
+                    horizontal_slice = clipped_range(
+                        pixel_array.shape[1], j, current_k
+                    )
+                    segment = pixel_array[vertical_slice, horizontal_slice]
+
+                    mean = np.mean(segment)
+                    min_value = segment.min()
+                    max_value = segment.max()
+                    df_max = abs(max_value - mean)
+                    df_min = abs(min_value - mean)
+
+                    if df_max == df_min:
+                        if min_value != max_value:
+                            current_k += 1
+                            continue
+                        else:
+                            threshold = alpha * mean
+                            break
+                    else:
+                        if df_max > df_min:
+                            threshold = alpha * (
+                                2 / 3 * min_value +
+                                1 / 3 * mean
+                            )
+                        else:
+                            threshold = alpha * (
+                                1 / 3 * min_value +
+                                2 / 3 * mean
+                            )
+                        break
+
+                new_array[i, j] = (
+                    0 if pixel_array[i, j] < threshold else 255
+                )
+
+        modified_image = PIL.Image.fromarray(new_array)
+        self.set_modified_image(modified_image)
 
     def perform_reset(self):
         self.set_modified_image(self.image)
