@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import argparse
+import math
 import tkinter as tk
+import tkinter.messagebox as tk_messagebox
 
 import PIL.ImageTk
 import PIL.Image
@@ -87,22 +89,105 @@ class ImageManipulationWindow:
         self.label_modified.config(image=self._scaled_tk_image_modified)
 
     def perform_addition(self):
-        pass
+        try:
+            argument = float(self.add_entry.get())
+        except ValueError:
+            tk_messagebox.showerror('Error', 'Invalid argument')
+            return
+
+        original_pixels = list(self.image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(original_value + argument)
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
 
     def perform_multiplication(self):
-        pass
+        try:
+            argument = float(self.multiply_entry.get())
+        except ValueError:
+            tk_messagebox.showerror('Error', 'Invalid argument')
+            return
+
+        original_pixels = list(self.image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(original_value * argument)
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
 
     def perform_exponentiation(self):
-        pass
+        try:
+            argument = float(self.exponentiate_entry.get())
+        except ValueError:
+            tk_messagebox.showerror('Error', 'Invalid argument')
+            return
+
+        _, max_value = self.image.getextrema()
+
+        original_pixels = list(self.image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(
+                255 * (original_value / max_value) ** argument
+            )
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
 
     def perform_logarithm(self):
-        pass
+        _, max_value = self.image.getextrema()
+
+        original_pixels = list(self.image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(
+                255 * (math.log(original_value + 1) / math.log(max_value + 1))
+            )
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
 
     def perform_negation(self):
-        pass
+        original_pixels = list(self.image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(255 - original_value)
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
 
     def perform_contrasting(self):
-        pass
+        min_value, max_value = self.image.getextrema()
+        coeff = 255 / (max_value - min_value)
+
+        original_pixels = list(self.image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(
+                coeff * (original_value - min_value)
+            )
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
+
+    def show_modified_pixels(self, modified_pixels):
+        modified_image = PIL.Image.new(
+            'L', (self.image.width, self.image.height)
+        )
+        modified_image.putdata(modified_pixels)
+        self.set_modified_image(modified_image)
+
+    @staticmethod
+    def normalize_color_value(value):
+        value = round(value)
+        if value > 255:
+            value = 255
+        elif value < 0:
+            value = 0
+        return value
 
     @staticmethod
     def scale_image(image):
