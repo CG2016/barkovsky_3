@@ -76,6 +76,11 @@ class ImageManipulationWindow:
         )
         self.contrast_button.grid(row=6, column=1, sticky='W')
 
+        self.reset_button = tk.Button(
+            self.root, text='Reset', command=self.perform_reset
+        )
+        self.reset_button.grid(row=7, column=0, sticky='W')
+
     def set_original_image(self, image):
         self._scaled_tk_image_original = PIL.ImageTk.PhotoImage(
             self.scale_image(image)
@@ -83,6 +88,7 @@ class ImageManipulationWindow:
         self.label_original.config(image=self._scaled_tk_image_original)
 
     def set_modified_image(self, image):
+        self.modified_image = image
         self._scaled_tk_image_modified = PIL.ImageTk.PhotoImage(
             self.scale_image(image)
         )
@@ -95,7 +101,7 @@ class ImageManipulationWindow:
             tk_messagebox.showerror('Error', 'Invalid argument')
             return
 
-        original_pixels = list(self.image.getdata())
+        original_pixels = list(self.modified_image.getdata())
         modified_pixels = [
             self.normalize_color_value(original_value + argument)
             for original_value in original_pixels
@@ -110,7 +116,7 @@ class ImageManipulationWindow:
             tk_messagebox.showerror('Error', 'Invalid argument')
             return
 
-        original_pixels = list(self.image.getdata())
+        original_pixels = list(self.modified_image.getdata())
         modified_pixels = [
             self.normalize_color_value(original_value * argument)
             for original_value in original_pixels
@@ -125,9 +131,9 @@ class ImageManipulationWindow:
             tk_messagebox.showerror('Error', 'Invalid argument')
             return
 
-        _, max_value = self.image.getextrema()
+        _, max_value = self.modified_image.getextrema()
 
-        original_pixels = list(self.image.getdata())
+        original_pixels = list(self.modified_image.getdata())
         modified_pixels = [
             self.normalize_color_value(
                 255 * (original_value / max_value) ** argument
@@ -138,9 +144,9 @@ class ImageManipulationWindow:
         self.show_modified_pixels(modified_pixels)
 
     def perform_logarithm(self):
-        _, max_value = self.image.getextrema()
+        _, max_value = self.modified_image.getextrema()
 
-        original_pixels = list(self.image.getdata())
+        original_pixels = list(self.modified_image.getdata())
         modified_pixels = [
             self.normalize_color_value(
                 255 * (math.log(original_value + 1) / math.log(max_value + 1))
@@ -151,7 +157,7 @@ class ImageManipulationWindow:
         self.show_modified_pixels(modified_pixels)
 
     def perform_negation(self):
-        original_pixels = list(self.image.getdata())
+        original_pixels = list(self.modified_image.getdata())
         modified_pixels = [
             self.normalize_color_value(255 - original_value)
             for original_value in original_pixels
@@ -160,10 +166,10 @@ class ImageManipulationWindow:
         self.show_modified_pixels(modified_pixels)
 
     def perform_contrasting(self):
-        min_value, max_value = self.image.getextrema()
+        min_value, max_value = self.modified_image.getextrema()
         coeff = 255 / (max_value - min_value)
 
-        original_pixels = list(self.image.getdata())
+        original_pixels = list(self.modified_image.getdata())
         modified_pixels = [
             self.normalize_color_value(
                 coeff * (original_value - min_value)
@@ -172,6 +178,9 @@ class ImageManipulationWindow:
         ]
 
         self.show_modified_pixels(modified_pixels)
+
+    def perform_reset(self):
+        self.set_modified_image(self.image)
 
     def show_modified_pixels(self, modified_pixels):
         modified_image = PIL.Image.new(
