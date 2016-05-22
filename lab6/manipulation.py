@@ -15,6 +15,7 @@ class ImageManipulationWindow:
     def __init__(self, image_path):
         self.root = tk.Tk()
         self.root.grid_columnconfigure(3, weight=1)
+        self.root.grid_columnconfigure(7, weight=1)
 
         self.image = PIL.Image.open(image_path).convert('L')
 
@@ -22,14 +23,15 @@ class ImageManipulationWindow:
         self.label_original.grid(row=0, column=0, columnspan=4)
 
         self.label_modified = tk.Label(self.root)
-        self.label_modified.grid(row=0, column=4)
+        self.label_modified.grid(row=0, column=4, columnspan=4)
 
         self.set_original_image(self.image)
         self.set_modified_image(self.image)
 
-        self.setup_operation_controls()
+        self.setup_pixelwise_operation_controls()
+        self.setup_thresholding_operation_controls()
 
-    def setup_operation_controls(self):
+    def setup_pixelwise_operation_controls(self):
         self.add_label = tk.Label(self.root, text='Add')
         self.add_label.grid(row=1, column=0, sticky='W')
         self.add_entry = tk.Entry(self.root)
@@ -80,6 +82,31 @@ class ImageManipulationWindow:
             self.root, text='Reset', command=self.perform_reset
         )
         self.reset_button.grid(row=7, column=0, sticky='W')
+
+    def setup_thresholding_operation_controls(self):
+        self.binarization_label = tk.Label(
+            self.root, text='Binarization (lower bound)'
+        )
+        self.binarization_label.grid(row=1, column=4, sticky='W')
+        self.binarization_entry = tk.Entry(self.root)
+        self.binarization_entry.grid(row=1, column=5, sticky='W')
+        self.binarization_button = tk.Button(
+            self.root, text='Perform',
+            command=self.perform_lower_threshold_binarization
+        )
+        self.binarization_button.grid(row=1, column=6, sticky='W')
+
+        self.incomplete_thresholding_label = tk.Label(
+            self.root, text='Incomplete thresholding'
+        )
+        self.incomplete_thresholding_label.grid(row=2, column=4, sticky='W')
+        self.incomplete_thresholding_entry = tk.Entry(self.root)
+        self.incomplete_thresholding_entry.grid(row=2, column=5, sticky='W')
+        self.incomplete_thresholding_button = tk.Button(
+            self.root, text='Perform',
+            command=self.perform_incomlete_thresholding
+        )
+        self.incomplete_thresholding_button.grid(row=2, column=6, sticky='W')
 
     def set_original_image(self, image):
         self._scaled_tk_image_original = PIL.ImageTk.PhotoImage(
@@ -173,6 +200,40 @@ class ImageManipulationWindow:
         modified_pixels = [
             self.normalize_color_value(
                 coeff * (original_value - min_value)
+            )
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
+
+    def perform_lower_threshold_binarization(self):
+        try:
+            argument = float(self.binarization_entry.get())
+        except ValueError:
+            tk_messagebox.showerror('Error', 'Invalid argument')
+            return
+
+        original_pixels = list(self.modified_image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(
+                0 if original_value <= argument else 255
+            )
+            for original_value in original_pixels
+        ]
+
+        self.show_modified_pixels(modified_pixels)
+
+    def perform_incomlete_thresholding(self):
+        try:
+            argument = float(self.incomplete_thresholding_entry.get())
+        except ValueError:
+            tk_messagebox.showerror('Error', 'Invalid argument')
+            return
+
+        original_pixels = list(self.modified_image.getdata())
+        modified_pixels = [
+            self.normalize_color_value(
+                original_value if original_value < argument else 255
             )
             for original_value in original_pixels
         ]
