@@ -255,7 +255,33 @@ class ImageManipulationWindow:
         self.set_modified_image(modified_image)
 
     def perform_niblack(self):
-        pass
+        r = 15
+        k = -0.2
+
+        def clipped_range(dimension_size, coord, window):
+            radius = (window - 1) // 2
+            min_coord = max(0, coord - radius)
+            max_coord = min(dimension_size, coord + radius + 1)
+            return slice(min_coord, max_coord)
+
+        pixel_array = np.array(self.image)
+        new_array = pixel_array.copy()
+        for i in range(pixel_array.shape[0]):
+            print(i)
+            for j in range(pixel_array.shape[1]):
+                vertical_slice = clipped_range(pixel_array.shape[0], i, r)
+                horizontal_slice = clipped_range(pixel_array.shape[1], j, r)
+                segment = pixel_array[vertical_slice, horizontal_slice]
+
+                mean = np.mean(segment)
+                stddev = np.std(segment)
+                threshold = mean + k * stddev
+                new_array[i, j] = (
+                    0 if pixel_array[i, j] < threshold else 255
+                )
+
+        modified_image = PIL.Image.fromarray(new_array)
+        self.set_modified_image(modified_image)
 
     def perform_adaptive(self):
         pass
