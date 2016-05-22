@@ -6,6 +6,7 @@ import tkinter.messagebox as tk_messagebox
 
 import PIL.ImageTk
 import PIL.Image
+import numpy as np
 
 
 IMAGE_SIZE = (600, 400)
@@ -84,29 +85,39 @@ class ImageManipulationWindow:
         self.reset_button.grid(row=7, column=0, sticky='W')
 
     def setup_thresholding_operation_controls(self):
-        self.binarization_label = tk.Label(
-            self.root, text='Binarization (lower bound)'
+        self.bernsen_label = tk.Label(
+            self.root, text='Bernsen thresholding'
         )
-        self.binarization_label.grid(row=1, column=4, sticky='W')
-        self.binarization_entry = tk.Entry(self.root)
-        self.binarization_entry.grid(row=1, column=5, sticky='W')
-        self.binarization_button = tk.Button(
+        self.bernsen_label.grid(row=1, column=4, sticky='W')
+        self.bernsen_entry = tk.Entry(self.root)
+        self.bernsen_entry.grid(row=1, column=5, sticky='W')
+        self.bernsen_button = tk.Button(
             self.root, text='Perform',
-            command=self.perform_lower_threshold_binarization
+            command=self.perform_bernsen
         )
-        self.binarization_button.grid(row=1, column=6, sticky='W')
+        self.bernsen_button.grid(row=1, column=6, sticky='W')
 
-        self.incomplete_thresholding_label = tk.Label(
-            self.root, text='Incomplete thresholding'
+        self.niblack_label = tk.Label(
+            self.root, text='Niblack thresholding'
         )
-        self.incomplete_thresholding_label.grid(row=2, column=4, sticky='W')
-        self.incomplete_thresholding_entry = tk.Entry(self.root)
-        self.incomplete_thresholding_entry.grid(row=2, column=5, sticky='W')
-        self.incomplete_thresholding_button = tk.Button(
+        self.niblack_label.grid(row=2, column=4, sticky='W')
+        self.niblack_entry = tk.Entry(self.root)
+        self.niblack_entry.grid(row=2, column=5, sticky='W')
+        self.niblack_button = tk.Button(
             self.root, text='Perform',
-            command=self.perform_incomlete_thresholding
+            command=self.perform_niblack
         )
-        self.incomplete_thresholding_button.grid(row=2, column=6, sticky='W')
+        self.niblack_button.grid(row=2, column=6, sticky='W')
+
+        self.adaptive_label = tk.Label(
+            self.root, text='Adaptive thresholding'
+        )
+        self.adaptive_label.grid(row=3, column=4, sticky='W')
+        self.adaptive_button = tk.Button(
+            self.root, text='Perform',
+            command=self.perform_adaptive
+        )
+        self.adaptive_button.grid(row=3, column=5, sticky='W')
 
     def set_original_image(self, image):
         self._scaled_tk_image_original = PIL.ImageTk.PhotoImage(
@@ -206,39 +217,48 @@ class ImageManipulationWindow:
 
         self.show_modified_pixels(modified_pixels)
 
-    def perform_lower_threshold_binarization(self):
-        try:
-            argument = float(self.binarization_entry.get())
-        except ValueError:
-            tk_messagebox.showerror('Error', 'Invalid argument')
-            return
+    def perform_bernsen(self):
+        r = 15
+        min_contrast = 15
 
-        original_pixels = list(self.modified_image.getdata())
-        modified_pixels = [
-            self.normalize_color_value(
-                0 if original_value <= argument else 255
-            )
-            for original_value in original_pixels
+        pixel_array = np.array(self.image)
+        vertical_split = np.split(pixel_array, range(r, self.image.height, r))
+        segments = [
+            np.split(rows, range(r, self.image.width, r), axis=1)
+            for rows in vertical_split
         ]
+        for segment_row in segments:
+            for segment in segment_row:
+                min_value = int(segment.min())
+                max_value = int(segment.max())
+                mid_value = (min_value + max_value) / 2
 
-        self.show_modified_pixels(modified_pixels)
+                if max_value - min_value <= min_contrast:
+                    if mid_value < 128:
+                        fill_value = 0
+                    else:
+                        fill_value = 255
+                    segment.fill(fill_value)
+                else:
+                    for i in range(segment.shape[0]):
+                        for j in range(segment.shape[1]):
+                            segment[i, j] = (
+                                0 if segment[i, j] < mid_value else 255
+                            )
 
-    def perform_incomlete_thresholding(self):
-        try:
-            argument = float(self.incomplete_thresholding_entry.get())
-        except ValueError:
-            tk_messagebox.showerror('Error', 'Invalid argument')
-            return
-
-        original_pixels = list(self.modified_image.getdata())
-        modified_pixels = [
-            self.normalize_color_value(
-                original_value if original_value < argument else 255
-            )
-            for original_value in original_pixels
+        vertical_split = [
+            np.concatenate(segment_row, axis=1)
+            for segment_row in segments
         ]
+        modified_pixels = np.concatenate(vertical_split)
+        modified_image = PIL.Image.fromarray(modified_pixels)
+        self.set_modified_image(modified_image)
 
-        self.show_modified_pixels(modified_pixels)
+    def perform_niblack(self):
+        pass
+
+    def perform_adaptive(self):
+        pass
 
     def perform_reset(self):
         self.set_modified_image(self.image)
