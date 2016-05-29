@@ -254,6 +254,8 @@ class ClippingDemoWindow:
         try:
             rect1, rect2 = self.get_rectangle_points()
             segm1, segm2 = self.get_segment_points()
+            rect1_x, rect1_y = rect1
+            rect2_x, rect2_y = rect2
         except ValueError:
             tkinter.messagebox.showerror('Error', 'Invalid coordinates')
             return
@@ -262,11 +264,105 @@ class ClippingDemoWindow:
         self.draw_rectangle(rect1, rect2)
         self.draw_polygon_points(vertices)
 
-        pass
+        # Sutherland-Hodgman
+        vertices = self.cut_vertices(vertices, rect1_y, 'up')
+        vertices = self.cut_vertices(vertices, rect2_x, 'right')
+        vertices = self.cut_vertices(vertices, rect2_y, 'down')
+        vertices = self.cut_vertices(vertices, rect1_x, 'left')
+        self.draw_polygon_points(vertices, color='red')
 
-    def draw_polygon_points(self, points):
+    def cut_vertices(self, vertices, coord, mode):
+        result = []
+        if mode == 'up':
+            for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
+                x1, y1 = p1
+                x2, y2 = p2
+                if y1 > coord and y2 > coord:
+                    result.append(p1)
+                elif y1 > coord and y2 < coord:
+                    int = self.intersection(
+                        self.line_coeffs((0, coord), (1, coord)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(p1)
+                    result.append(int)
+                elif y1 < coord and y2 < coord:
+                    pass
+                elif y1 < coord and y2 > coord:
+                    int = self.intersection(
+                        self.line_coeffs((0, coord), (1, coord)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(int)
+        elif mode == 'down':
+            for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
+                x1, y1 = p1
+                x2, y2 = p2
+                if y1 < coord and y2 < coord:
+                    result.append(p1)
+                elif y1 < coord and y2 > coord:
+                    int = self.intersection(
+                        self.line_coeffs((0, coord), (1, coord)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(p1)
+                    result.append(int)
+                elif y1 > coord and y2 > coord:
+                    pass
+                elif y1 > coord and y2 < coord:
+                    int = self.intersection(
+                        self.line_coeffs((0, coord), (1, coord)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(int)
+        elif mode == 'left':
+            for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
+                x1, y1 = p1
+                x2, y2 = p2
+                if x1 > coord and x2 > coord:
+                    result.append(p1)
+                elif x1 > coord and x2 < coord:
+                    int = self.intersection(
+                        self.line_coeffs((coord, 0), (coord, 1)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(p1)
+                    result.append(int)
+                elif x1 < coord and x2 < coord:
+                    pass
+                elif x1 < coord and x2 > coord:
+                    int = self.intersection(
+                        self.line_coeffs((coord, 0), (coord, 1)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(int)
+        elif mode == 'right':
+            for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
+                x1, y1 = p1
+                x2, y2 = p2
+                if x1 < coord and x2 < coord:
+                    result.append(p1)
+                elif x1 < coord and x2 > coord:
+                    int = self.intersection(
+                        self.line_coeffs((coord, 0), (coord, 1)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(p1)
+                    result.append(int)
+                elif x1 > coord and x2 > coord:
+                    pass
+                elif x1 > coord and x2 < coord:
+                    int = self.intersection(
+                        self.line_coeffs((coord, 0), (coord, 1)),
+                        self.line_coeffs(p1, p2)
+                    )
+                    result.append(int)
+
+        return result
+
+    def draw_polygon_points(self, points, color='black'):
         for p1, p2 in zip(points, points[1:] + [points[0]]):
-            self.draw_segment(p1, p2)
+            self.draw_segment(p1, p2, color=color)
 
     def draw_segment(self, point1, point2, color='black'):
         x1, y1 = point1
