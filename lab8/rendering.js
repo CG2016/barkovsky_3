@@ -170,7 +170,36 @@ function formatMatrix(matrix) {
 
 
 function getLetterMesh() {
-  var geometry = new THREE.BoxGeometry(1, 1, 1);
+  var geometry = new THREE.Geometry();
+  geometry.vertices.push(
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(1, -1, 0),
+    new THREE.Vector3(0, -1, 0),
+    new THREE.Vector3(-1, -2, 0),
+    new THREE.Vector3(2, -2, 0),
+    new THREE.Vector3(2, 1, 0),
+    new THREE.Vector3(0, 1, 0),
+    new THREE.Vector3(0, 2, 0),
+    new THREE.Vector3(2, 2, 0),
+    new THREE.Vector3(2, 3, 0),
+    new THREE.Vector3(-1, 3, 0)
+  );
+  geometry.faces.push(
+    new THREE.Face3(0, 1, 7),
+    new THREE.Face3(1, 6, 7),
+    new THREE.Face3(2, 6, 1),
+    new THREE.Face3(2, 5, 6),
+    new THREE.Face3(3, 5, 2),
+    new THREE.Face3(4, 5, 3),
+    new THREE.Face3(4, 3, 11),
+    new THREE.Face3(3, 8, 11),
+    new THREE.Face3(8, 10, 11),
+    new THREE.Face3(8, 9, 10)
+  );
+
+  geometry.computeBoundingSphere();
+
   var material = new THREE.MeshBasicMaterial({color: 0xAAAA00, wireframe: true});
   var letter = new THREE.Mesh(geometry, material);
 
