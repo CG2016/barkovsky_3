@@ -219,7 +219,7 @@ class ClippingDemoWindow:
 
         if u2 < u1:
             return []
-        elif u1 < 0 < 1 < u2:
+        elif u1 <= 0 < 1 <= u2:
             return [p1, p2]
         elif 0 < u1 < u2 < 1:
             coll1 = (
@@ -248,7 +248,7 @@ class ClippingDemoWindow:
 
     def perform_polygon(self):
         vertices = [
-            (200, 50), (450, 200), (300, 350), (150, 250), (50, 50)
+            (350, 50), (450, 150), (300, 350), (150, 250), (50, 50)
         ]
 
         try:
@@ -277,18 +277,18 @@ class ClippingDemoWindow:
             for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
                 x1, y1 = p1
                 x2, y2 = p2
-                if y1 > coord and y2 > coord:
+                if y1 >= coord and y2 >= coord:
                     result.append(p1)
-                elif y1 > coord and y2 < coord:
+                elif y1 >= coord and y2 <= coord:
                     int = self.intersection(
                         self.line_coeffs((0, coord), (1, coord)),
                         self.line_coeffs(p1, p2)
                     )
                     result.append(p1)
                     result.append(int)
-                elif y1 < coord and y2 < coord:
+                elif y1 <= coord and y2 <= coord:
                     pass
-                elif y1 < coord and y2 > coord:
+                elif y1 <= coord and y2 >= coord:
                     int = self.intersection(
                         self.line_coeffs((0, coord), (1, coord)),
                         self.line_coeffs(p1, p2)
@@ -298,18 +298,18 @@ class ClippingDemoWindow:
             for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
                 x1, y1 = p1
                 x2, y2 = p2
-                if y1 < coord and y2 < coord:
+                if y1 <= coord and y2 <= coord:
                     result.append(p1)
-                elif y1 < coord and y2 > coord:
+                elif y1 <= coord and y2 >= coord:
                     int = self.intersection(
                         self.line_coeffs((0, coord), (1, coord)),
                         self.line_coeffs(p1, p2)
                     )
                     result.append(p1)
                     result.append(int)
-                elif y1 > coord and y2 > coord:
+                elif y1 >= coord and y2 >= coord:
                     pass
-                elif y1 > coord and y2 < coord:
+                elif y1 >= coord and y2 <= coord:
                     int = self.intersection(
                         self.line_coeffs((0, coord), (1, coord)),
                         self.line_coeffs(p1, p2)
@@ -319,18 +319,18 @@ class ClippingDemoWindow:
             for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
                 x1, y1 = p1
                 x2, y2 = p2
-                if x1 > coord and x2 > coord:
+                if x1 >= coord and x2 >= coord:
                     result.append(p1)
-                elif x1 > coord and x2 < coord:
+                elif x1 >= coord and x2 <= coord:
                     int = self.intersection(
                         self.line_coeffs((coord, 0), (coord, 1)),
                         self.line_coeffs(p1, p2)
                     )
                     result.append(p1)
                     result.append(int)
-                elif x1 < coord and x2 < coord:
+                elif x1 <= coord and x2 <= coord:
                     pass
-                elif x1 < coord and x2 > coord:
+                elif x1 <= coord and x2 >= coord:
                     int = self.intersection(
                         self.line_coeffs((coord, 0), (coord, 1)),
                         self.line_coeffs(p1, p2)
@@ -340,18 +340,18 @@ class ClippingDemoWindow:
             for p1, p2 in zip(vertices, vertices[1:] + [vertices[0]]):
                 x1, y1 = p1
                 x2, y2 = p2
-                if x1 < coord and x2 < coord:
+                if x1 <= coord and x2 <= coord:
                     result.append(p1)
-                elif x1 < coord and x2 > coord:
+                elif x1 <= coord and x2 >= coord:
                     int = self.intersection(
                         self.line_coeffs((coord, 0), (coord, 1)),
                         self.line_coeffs(p1, p2)
                     )
                     result.append(p1)
                     result.append(int)
-                elif x1 > coord and x2 > coord:
+                elif x1 >= coord and x2 >= coord:
                     pass
-                elif x1 > coord and x2 < coord:
+                elif x1 >= coord and x2 <= coord:
                     int = self.intersection(
                         self.line_coeffs((coord, 0), (coord, 1)),
                         self.line_coeffs(p1, p2)
